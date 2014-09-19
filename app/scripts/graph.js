@@ -39,6 +39,69 @@ Graph.prototype.isAcyclic = function() {
 	return true;
 };
 
+// Return an array with an entry per edge containing the number of nodes on one end of the edge (whichever end has fewer attached nodes)
+// Only valid for acyclic graphs.
+Graph.prototype.calculateEdgeBalance = function() {
+	var Nn = this.nodes.length;
+	var Ne = this.edges.length;
+	// any edge connected to a leaf has balance = 1
+	// any edge connected to a node for which all other edges have balances calculated has balance = sum(other balances) + 1
+	var i, j, e, ei;
+	var balances = [];
+	var node_to_edge_ids = [];
+	var remaining_degree = [];
+
+	for (i = 0; i < Nn; ++i) {
+		node_to_edge_ids.push([]);
+		remaining_degree.push(0);
+	}
+
+	for (i = 0; i < Ne; ++i) {
+		balances.push(0);
+
+		e = this.edges[i];
+
+		node_to_edge_ids[e.source].push(i);
+		node_to_edge_ids[e.target].push(i);
+		remaining_degree[e.source]++;
+		remaining_degree[e.target]++;
+	}
+
+	var ready = [];
+	for (i = 0; i < Nn; ++i) {
+		if (remaining_degree[i] == 1) {
+			ready.push(i);
+		}
+	}
+
+	while (ready.length) {
+		i = ready.pop();
+		ei = node_to_edge_ids[i][0];
+		balances[ei] = 1;
+		for (j = 1; j < node_to_edge_ids[i].length; ++j) {
+			balances[ei] += balances[node_to_edge_ids[i][j]];
+		}
+
+		e = this.edges[ei];
+
+		j = e.source != i ? e.source : e.target;
+		if (--remaining_degree[j] == 1) {
+			ready.push(j);
+		}
+
+		node_to_edge_ids[j].splice(_.indexOf(node_to_edge_ids[j], ei), 1);
+		node_to_edge_ids[j].push(ei);
+	}
+
+	for (i = 0; i < this.edges.length; ++i) {
+		if (balances[i] > Nn / 2) {
+			balances[i] = Nn - balances[i];
+		}
+	}
+
+	return balances;
+};
+
 Graph.prototype.leafDistance = function() {
 	var open = _.map(this.leafIndices(), function(i) { return { idx: i, dist: 0 }; });
 	var heap = new Heap(function(a, b) { return a.dist > b.dist; });
