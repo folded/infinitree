@@ -1,3 +1,5 @@
+"use strict";
+
 var Graph = function(nodes, edges) {
 	this.nodes = nodes;
 	this.edges = edges;
@@ -5,29 +7,68 @@ var Graph = function(nodes, edges) {
 	this.makeNodeIdxMap();
 };
 
-Graph.prototype.findNode = function(name) {
-	console.log(name, this.name_to_idx[name])
+Graph.prototype.nAdj = function(name) {
+	var idx = this.nodeIdx(name);
+	return this.adj[idx].length;
+};
+
+Graph.prototype.isLeaf = function(name) {
+	return this.nAdj(name) == 1;
+};
+
+Graph.prototype.leafIndices = function() {
+	var result = [];
+	for (var i = 0; i < this.nodes.length; ++i) {
+		if (this.adj[i].length == 1) {
+			result.push(i);
+		}
+	}
+	return result;
+};
+
+Graph.prototype.leafDistance = function() {
+	var self = this;
+	var open = _.map(this.leafIndices(), function(i) { return { idx: i, dist: 0 }});
+	var heap = new Heap(function(a, b) { return a.dist > b.dist; })
+	var closed = [];
+
+	while (open.length) {
+		heap.pop(open, open.length);
+		var n = open.pop();
+		if (closed[n.idx] !== undefined) continue;
+		closed[n.idx] = n.dist;
+
+		_.each(this.adj[n.idx], function(k) {
+			if (closed[k] === undefined) {
+				heap.push(open, open.length, { idx: k, dist: n.dist + 1 });
+			}
+		});
+	}
+	return closed;
+};
+
+Graph.prototype.nodeIdx = function(name) {
 	return this.name_to_idx[name];
 };
 
-Graph.prototype.findMappedNode = function(name) {
+Graph.prototype.mappedNodeIdx = function(name) {
 	if (this.name_map !== undefined) {
-		return this.findNode(this.name_map[name]);
+		return this.nodeIdx(this.name_map[name]);
 	} else {
-		return this.findNode(name);
+		return this.nodeIdx(name);
 	}
 };
 
 Graph.prototype.neighbourhoodIds = function(name, radius) {
 	var self = this;
 
-	var start_idx = this.findNode(name);
+	var start_idx = this.nodeIdx(name);
 	if (start_idx === undefined) {
 		return [];
 	}
 
 	var open = [ {idx: start_idx, dist: 0} ];
-	var heap = new Heap(function(a, b) { return a.dist < b.dist; })
+	var heap = new Heap(function(a, b) { return a.dist > b.dist; })
 	var closed = {};
 	while (open.length) {
 		heap.pop(open, open.length);
@@ -36,7 +77,7 @@ Graph.prototype.neighbourhoodIds = function(name, radius) {
 
 		closed[n.idx] = true;
 		if (n.dist < radius) {
-			_.each(this.adj[n.idx], function(v, k) {
+			_.each(this.adj[n.idx], function(k) {
 				if (!closed[k]) {
 					heap.push(open, open.length, { idx: k, dist: n.dist + 1 })
 				}
@@ -83,15 +124,18 @@ Graph.prototype.extractNeighbourhood = function(name, radius) {
 };
 
 Graph.prototype.makeAdjacency = function() {
-	this.adj = {};
+	var adj = [];
+	_.each(this.nodes, function() { adj.push([]); });
+
 	for (var i = 0; i < this.edges.length; ++i) {
 		var e = this.edges[i];
-		if (e.source === undefined || e.target === undefined) console.log('undefined', e);
-		if (this.adj[e.source] === undefined) this.adj[e.source] = {};
-		if (this.adj[e.target] === undefined) this.adj[e.target] = {};
-		this.adj[e.source][e.target] = e.weight;
-		this.adj[e.target][e.source] = e.weight;
+		adj[e.source].push(e.target);
+		adj[e.target].push(e.source);
 	}
+
+	_.each(adj, function(v) { v.sort(); });
+
+	this.adj = adj;
 };
 
 Graph.prototype.makeNodeIdxMap = function() {
