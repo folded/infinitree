@@ -27,17 +27,14 @@ Graph.prototype.leafIndices = function() {
 };
 
 Graph.prototype.isAcyclic = function() {
-	var i, j, e;
-	var s, t;
+	var i, e;
 	var node_set = new DJSet(this.nodes.length);
 	for (i = 0; i < this.edges.length; ++i) {
 		e = this.edges[i];
-		if (e.weight < threshold) {
-			if (node_set.sameSet(e.source, e.target)) {
-				return false;
-			}
-			node_set.mergeSets(e.source, e.target);
+		if (node_set.sameSet(e.source, e.target)) {
+			return false;
 		}
+		node_set.mergeSets(e.source, e.target);
 	}
 	return true;
 };
