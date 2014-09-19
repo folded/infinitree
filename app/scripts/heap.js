@@ -1,16 +1,22 @@
-"use strict"; // jshint ;_;
+"use strict";
 
 var Heap = function(pred) {
-    this.pred = pred || (function (a,b) { return a < b; });
+    this.pred = pred || function (a,b) { return a < b; };
 };
 
 Heap.prototype.isHeap = function(array, len) {
     var parent = 0;
 
     for (var child = 1; child < len; ++child) {
-        if (this.pred(array[parent], array[child])) return false;
-        if (++child == len) break;
-        if (this.pred(array[parent], array[child])) return false;
+        if (this.pred(array[parent], array[child])) {
+            return false;
+        }
+        if (++child == len) {
+            break;
+        }
+        if (this.pred(array[parent], array[child])) {
+            return false;
+        }
         ++parent;
     }
     return true;

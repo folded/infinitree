@@ -28,21 +28,24 @@ Graph.prototype.leafIndices = function() {
 
 Graph.prototype.leafDistance = function() {
 	var self = this;
-	var open = _.map(this.leafIndices(), function(i) { return { idx: i, dist: 0 }});
-	var heap = new Heap(function(a, b) { return a.dist > b.dist; })
+	var open = _.map(this.leafIndices(), function(i) { return { idx: i, dist: 0 }; });
+	var heap = new Heap(function(a, b) { return a.dist > b.dist; });
 	var closed = [];
 
 	while (open.length) {
 		heap.pop(open, open.length);
 		var n = open.pop();
-		if (closed[n.idx] !== undefined) continue;
+		if (closed[n.idx] !== undefined) {
+			continue;
+		}
 		closed[n.idx] = n.dist;
 
-		_.each(this.adj[n.idx], function(k) {
+		for (var j = 0; j < this.adj[n.idx].length; ++j) {
+			var k = this.adj[n.idx][j];
 			if (closed[k] === undefined) {
 				heap.push(open, open.length, { idx: k, dist: n.dist + 1 });
 			}
-		});
+		}
 	}
 	return closed;
 };
@@ -51,10 +54,12 @@ Graph.prototype.pickCentralNode = function() {
 	var ld = this.leafDistance();
 	var best = 0;
 	for (var i = 1; i < ld.length; ++i) {
-		if (ld[best] < ld[i]) best = i;
+		if (ld[best] < ld[i]) {
+			best = i;
+		}
 	}
 	return this.nodes[best].name;
-}
+};
 
 Graph.prototype.nodeIdx = function(name) {
 	return this.name_to_idx[name];
@@ -77,20 +82,23 @@ Graph.prototype.neighbourhoodIds = function(name, radius) {
 	}
 
 	var open = [ {idx: start_idx, dist: 0} ];
-	var heap = new Heap(function(a, b) { return a.dist > b.dist; })
+	var heap = new Heap(function(a, b) { return a.dist > b.dist; });
 	var closed = {};
 	while (open.length) {
 		heap.pop(open, open.length);
 		var n = open.pop();
-		if (closed[n.idx]) continue;
+		if (closed[n.idx]) {
+			continue;
+		}
 
 		closed[n.idx] = true;
 		if (n.dist < radius) {
-			_.each(this.adj[n.idx], function(k) {
+			for (var j = 0; j < this.adj[n.idx].length; ++j) {
+				var k = this.adj[n.idx][j];
 				if (!closed[k]) {
-					heap.push(open, open.length, { idx: k, dist: n.dist + 1 })
+					heap.push(open, open.length, { idx: k, dist: n.dist + 1 });
 				}
-			});
+			}
 		}
 	}
 	return _.map(closed, function(v, k) { return self.nodes[k].name; });
