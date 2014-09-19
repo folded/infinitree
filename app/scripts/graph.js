@@ -40,7 +40,6 @@ Graph.prototype.isAcyclic = function() {
 };
 
 Graph.prototype.leafDistance = function() {
-	var self = this;
 	var open = _.map(this.leafIndices(), function(i) { return { idx: i, dist: 0 }; });
 	var heap = new Heap(function(a, b) { return a.dist > b.dist; });
 	var closed = [];
@@ -128,13 +127,13 @@ Graph.prototype.extractNeighbourhood = function(name, radius) {
 		keydict[v] = n++;
 	});
 
-	_.each(this.nodes, function(v, i) {
+	_.each(this.nodes, function(v) {
 		if (keydict[v.name] !== undefined) {
 			out_nodes[keydict[v.name]] = _.extend({}, v);
 		}
 	});
 
-	_.each(this.edges, function(v, i) {
+	_.each(this.edges, function(v) {
 		var s = keydict[self.nodes[v.source].name];
 		var t = keydict[self.nodes[v.target].name];
 		if (s !== undefined && t !== undefined) {
