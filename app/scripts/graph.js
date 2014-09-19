@@ -26,6 +26,22 @@ Graph.prototype.leafIndices = function() {
 	return result;
 };
 
+Graph.prototype.isAcyclic = function() {
+	var i, j, e;
+	var s, t;
+	var node_set = new DJSet(this.nodes.length);
+	for (i = 0; i < this.edges.length; ++i) {
+		e = this.edges[i];
+		if (e.weight < threshold) {
+			if (node_set.sameSet(e.source, e.target)) {
+				return false;
+			}
+			node_set.mergeSets(e.source, e.target);
+		}
+	}
+	return true;
+};
+
 Graph.prototype.leafDistance = function() {
 	var self = this;
 	var open = _.map(this.leafIndices(), function(i) { return { idx: i, dist: 0 }; });
