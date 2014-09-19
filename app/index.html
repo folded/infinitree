@@ -21,20 +21,16 @@
     <![endif]-->
 
 
-    <div class="hero-unit">
-      <h1>'Allo, 'Allo!</h1>
-      <p>You now have</p>
-      <ul>
-      <li>HTML5 Boilerplate</li>
-
-
-      </ul>
+    <div id="graph">
     </div>
 
 
     <!-- build:js(.) scripts/vendor.js -->
     <!-- bower:js -->
     <script src="bower_components/jquery/dist/jquery.js"></script>
+    <script src="bower_components/d3/d3.js"></script>
+    <script src="bower_components/underscore/underscore.js"></script>
+    <script src="bower_components/backbone/backbone.js"></script>
     <!-- endbower -->
     <!-- endbuild -->
 
@@ -49,6 +45,9 @@
     </script>
 
         <!-- build:js({app,.tmp}) scripts/main.js -->
+        <script src="scripts/heap.js"></script>
+        <script src="scripts/djset.js"></script>
+        <script src="scripts/graph.js"></script>
         <script src="scripts/main.js"></script>
         <!-- endbuild -->
 </body>
