@@ -47,6 +47,15 @@ Graph.prototype.leafDistance = function() {
 	return closed;
 };
 
+Graph.prototype.pickCentralNode = function() {
+	var ld = this.leafDistance();
+	var best = 0;
+	for (var i = 1; i < ld.length; ++i) {
+		if (ld[best] < ld[i]) best = i;
+	}
+	return this.nodes[best].name;
+}
+
 Graph.prototype.nodeIdx = function(name) {
 	return this.name_to_idx[name];
 };
