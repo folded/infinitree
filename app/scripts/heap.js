@@ -55,7 +55,9 @@ Heap.prototype.adjust = function(array, pos, len, val) {
     var top = pos;
     var child = pos * 2 + 2;
     while (child < len) {
-        if (this.pred(array[child], array[child-1])) --child;
+        if (this.pred(array[child], array[child-1])) {
+            --child;
+        }
         array[pos] = array[child];
         pos = child;
         child = pos * 2 + 2;
